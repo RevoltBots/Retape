@@ -15,6 +15,7 @@ const openSettingsButton = document.querySelector("#openSettingsBtn");
 const openDMsbutton = document.querySelector("#dms");
 const profileSetting = document.querySelector("#profileSetting");
 const visualSetting = document.querySelector("#visualSetting");
+const infoSetting = document.querySelector("#infoSetting");
 const toolbar = document.querySelector(".toolbar");
 const toolbarBtn = document.querySelector(".toolbar-btn");
 const uploadContainer = document.querySelector("#upload");
@@ -22,7 +23,8 @@ const input = document.querySelector("#input");
 const langSelect = document.querySelector("#langSelect");
 
 langSelect.onchange = () => {
-  settings.visual.language = langSelect.options[langSelect.selectedIndex].value; //Set language to selection
+  settings.visual.language.value =
+    langSelect.options[langSelect.selectedIndex].value; //Set language to selection
   setSettings();
   updateLanguage();
 };
@@ -85,6 +87,10 @@ visualSetting.onclick = () => {
 profileSetting.onclick = () => {
   loadSetting("profile");
 };
+
+infoSetting.onclick = () => {
+  loadSetting("info");
+}
 
 modalBackground.forEach((element) => {
   element.onclick = () => {

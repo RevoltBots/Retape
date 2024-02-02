@@ -295,8 +295,10 @@ function renderEmbed(embed) {
     let embedContainer = document.createElement("div");
     embedContainer.classList.add("embed");
     if (embed.type === "Text" || embed.type === "Website") {
-      //Loki TODO: style
-      embedContainer.style.backgroundColor = embed.colour;
+
+      let embedSiteName = document.createElement("div");
+      embedSiteName.classList.add("embed-site-name");
+      embedContainer.appendChild(embedSiteName);
 
       if (embed.icon_url) {
         let icon = document.createElement("img");
@@ -304,7 +306,15 @@ function renderEmbed(embed) {
         icon.src = `${settings.instance.january}/proxy?url=${embed.icon_url}`;
         icon.classList.add("embed-icon");
 
-        embedContainer.appendChild(icon);
+        embedSiteName.appendChild(icon);
+      }
+
+      if (embed.site_name) {
+        let siteName = document.createElement("span");
+
+        siteName.textContent = embed.site_name;
+
+        embedSiteName.appendChild(siteName);
       }
 
       if (embed.original_url) {
@@ -315,15 +325,6 @@ function renderEmbed(embed) {
         originalURL.href = embed.original_url;
 
         embedContainer.appendChild(originalURL);
-      }
-
-      if (embed.site_name) {
-        let siteName = document.createElement("span");
-
-        siteName.classList.add("embed-site-name");
-        siteName.textContent = embed.site_name;
-
-        embedContainer.appendChild(siteName);
       }
 
       if (embed.title) {
@@ -338,7 +339,6 @@ function renderEmbed(embed) {
       if (embed.description) {
         let description = document.createElement("div");
 
-        description.classList.add("embedDesc");
         description.innerHTML = marked.parse(
           embed.description.replace("<", "&lt;").replace(">", "&gt;")
         );
@@ -370,7 +370,6 @@ function renderEmbed(embed) {
         // to the video
         let media = document.createElement("a");
 
-        media.classList.add("embedMedia");
         media.href = `${settings.instance.january}/proxy?url=${embed.video.url}`;
         media.innerText = "Link to video";
 
@@ -626,11 +625,12 @@ function renderAttachments(message) {
       tmpAttachment.href = `${settings.instance.autumn}/attachments/${tmpAttchmntAttrs._id}/${tmpAttchmntAttrs.filename}`;
     }
     tmpAttachment.type = tmpAttchmntAttrs.content_type;
-          tmpAttachment.height = tmpAttchmntAttrs.metadata.height;
-          attachments.appendChild(tmpAttachment);
+    tmpAttachment.height = tmpAttchmntAttrs.metadata.height;
+    attachments.appendChild(tmpAttachment);
   });
   return attachments;
 }
+
 // Parses and renders messages
 // TODO: make this function not be almost 200 lines long
 // Loki TODO: Add blocked message styling

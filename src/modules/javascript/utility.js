@@ -116,18 +116,18 @@ function cacheIndexLookup(resource, ID, serverID = undefined) {
  */
 async function fetchResource(target) {
   //Return of false means that it failed
-  const res = await fetch(`${settings.instance.delta}/${target}`, {
+  try {
+    return await fetch(`${settings.instance.delta}/${target}`, {
     headers: {
       "x-session-token": state.connection.token,
     },
     method: "GET",
   })
-    .then((res) => res.json())
-    .catch((error) => {
-      showError(error);
-      return false;
-    });
-  return res;
+    .then((res) => res.json());
+  } catch (e) {
+    showError({name: "loginError", message: e});
+    return false;
+  }
 }
 
 /**
@@ -407,7 +407,7 @@ function valueOfDeepKey(keys, object) {
 }
 
 async function updateLanguage() {
-  await fetch(`../assets/languages/${settings.visual.language}.json`)
+  await fetch(`../assets/languages/${settings.visual.language.value}.json`)
     .then((res) => res.json())
     .then((res) => (storage.language = res));
   if (storage.language.config["text-direction"] === "RL") {

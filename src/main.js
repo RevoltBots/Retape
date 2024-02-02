@@ -75,7 +75,7 @@ window.onload = async () => {
       });
   }
 
-  fetch(`../assets/languages/${settings.visual.language}.json`)
+  fetch(`../assets/languages/${settings.visual.language.value}.json`)
     .then((res) => res.json())
     .then((res) => {
       storage.language = res;
@@ -108,9 +108,11 @@ window.onload = async () => {
  */
 async function start() {
   if (state.connection.token)
-    document.querySelector(`#loginErrorContent`).innerText =
+    document.querySelector(`#loginErrorContainer`).innerText =
       "Your token has been loaded from local storage; the client will soon load";
-  await login();
+  if (await login() === false) {
+    return;
+  }
 
   if (!localStorage.getItem("token") && settings.behaviour.rememberMe)
     localStorage.setItem("token", state.connection.token);

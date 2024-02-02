@@ -18,13 +18,14 @@ async function processSettings() {
     settings = JSON.parse(localStorage.getItem("settings"));
   else return;
 
-  if (instanceURL.value) {
+  if (loginData.instanceURL.value) {
     await fetch(instanceURL.value)
       .then((res) => res.json())
       .then((data) => {
-        settings.instance.delta = instanceURL.value;
+        settings.instance.delta = loginData.instanceURL.value;
         settings.instance.autumn = data.features.autumn.url;
         settings.instance.january = data.features.january.url;
+        setSettings();
       })
       .catch((error) => {
         showError(error);
@@ -77,7 +78,7 @@ async function loadSyncSettings() {
       state.unreads.muted.servers.push(server);
   });
 
-  if (toggleTheme.checked == true) {
+  if (settings.visual.revoltTheme.value == true) {
     let themeVars = document.querySelector(":root");
     themeVars.style.setProperty("--accent", theme.accent);
     themeVars.style.setProperty("--error", theme.error);
@@ -131,38 +132,8 @@ async function loadSetting(settingCategory) {
     storage.language.settings.categories[settingCategory];
   mainSettings.replaceChildren();
 
-  if (settingCategory !== "profile") {
-    Object.keys(settings[settingCategory]).forEach((setting) => {
-      debugInfo(`Loading setting: ${setting}`);
-      let settingContainer = document.createElement("div");
-      let settingInput = document.createElement("input");
-      let settingInputLabel = document.createElement("label");
-      let settingDesc = document.createElement("span");
-
-      settingInput.type = "checkbox";
-      settingInput.checked = settings[settingCategory][setting].value;
-      settingInput.id = setting;
-      settingInput.onclick = () => {
-        settings[settingCategory][setting].value =
-          !settings[settingCategory][setting].value;
-        setSettings();
-      };
-
-      //Loki TODO: style
-      settingDesc.innerHTML =
-        "<br>" + storage.language.settings.descriptions[setting];
-      settingInputLabel.textContent = storage.language.settings.names[setting];
-      settingInputLabel.for = setting;
-
-      settingContainer.classList.add("setting-container");
-
-      settingContainer.appendChild(settingInput);
-      settingContainer.appendChild(settingInputLabel);
-      settingContainer.appendChild(settingDesc);
-
-      mainSettings.appendChild(settingContainer);
-    });
-  } else {
+  switch(settingCategory) {
+    case "profile": {
     debugInfo("Loading profile editor");
     //Loki TODO: style
     //Creates a div with text, profile preview, text, profile editor, save button
@@ -224,6 +195,81 @@ async function loadSetting(settingCategory) {
     profileEditor.appendChild(profileInputContainer);
     profileEditor.appendChild(profileSaveButton);
     mainSettings.appendChild(profileEditor);
+      break;
+  }
+    case "info": {
+      debugInfo("Displaying info");
+      let links = {
+        "Revolt": "https://github.com/RevoltChat",
+        "Retaped": "https://github.com/error-404-null-not-found/Retaped",
+        "Tetra": "https://meowcity.club",
+        "Loki": "https://loki.monster"
+      };
+      let info = document.createElement("p");
+      info.textContent = `Retaped: a minimalistic but powerful Revolt client programmed in vanilla JS 
+        Developed by Tetra Green with the assistance of Lokicalmito
+        Licensed under GPL-3.0-or-later
+        Links:`;
+      Object.keys(links).forEach(linkRef => {
+        let link = document.createElement("a");
+        link.href = links[linkRef];
+        link.textContent = linkRef;
+        info.appendChild(document.createElement("br"));
+        info.appendChild(link);
+      })
+      mainSettings.appendChild(info);
+      break;
+    }
+    default: {
+    Object.keys(settings[settingCategory]).forEach((setting) => {
+      debugInfo(`Loading setting: ${setting}`);
+      let settingContainer = document.createElement("div");
+      let settingInputLabel = document.createElement("label");
+      let settingDesc = document.createElement("span");
+
+      let settingInput;
+      if (typeof settings[settingCategory][setting].value === "boolean") {
+        settingInput = document.createElement("input");
+        settingInput.type = "checkbox";
+        settingInput.checked = settings[settingCategory][setting].value;
+        settingInput.id = setting;
+        settingInput.onclick = () => {
+          settings[settingCategory][setting].value =
+            !settings[settingCategory][setting].value;
+          setSettings();
+        };
+      } else {
+        settingInput = document.createElement("select");
+        settingInput.onchange = () => {
+          settings.visual.language.value =
+            langSelect.options[settingInput.selectedIndex].value; //Set language to selection
+          setSettings();
+          updateLanguage();
+        };
+        storage.languages.forEach((language) => {
+          languageOpt = document.createElement("option");
+          languageOpt.value = language;
+          languageOpt.text = language;
+          settingInput.appendChild(languageOpt);
+        });
+      }
+
+      //Loki TODO: style
+      settingDesc.innerHTML =
+        "<br>" + storage.language.settings.descriptions[setting];
+      settingInputLabel.textContent = storage.language.settings.names[setting];
+      settingInputLabel.for = setting;
+
+      settingContainer.classList.add("setting-container");
+
+      settingContainer.appendChild(settingInput);
+      settingContainer.appendChild(settingInputLabel);
+      settingContainer.appendChild(settingDesc);
+
+      mainSettings.appendChild(settingContainer);
+    });
+      break;
+    }
   }
 }
 

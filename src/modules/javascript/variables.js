@@ -16,6 +16,7 @@ const loginData = {
   email: document.querySelector("#email"),
   password: document.querySelector("#password"),
   mfa: document.querySelector("#mfa"),
+  instanceURL: document.querySelector("#customInstance"),
 };
 
 //Local settings; saved to localstorage
@@ -26,7 +27,7 @@ var storage = {
   emojis: {},
   permissions: {},
   language: {},
-  packageSettings: {}
+  packageSettings: {},
 };
 
 var state = {
